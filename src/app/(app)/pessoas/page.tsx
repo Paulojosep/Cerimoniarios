@@ -1,11 +1,17 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { Plus, Search, Filter, Mail, Phone } from "lucide-react";
+import Link from "next/link";
 import { Card, CelebracaoTitulo } from "@/components/ui/primitives";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CategoriaLabel, type Categoria } from "@/types/enums";
+import { makePrivateRequest, requestBackend } from '@/util/request';
+import { url } from 'inspector';
+import { Cerimoniarios } from '@/types/Cerimoniarios';
+import { extractInitialsFromName } from '@/lib/utils';
 
 const pessoasMock = [
   {
@@ -71,19 +77,33 @@ const pessoasMock = [
 ];
 
 export default function PessoasPage() {
+
+  const [cerimoniarios, setCerimoniarios] = useState<Cerimoniarios[]>([])
+
+  useEffect(() => {
+    requestBackend({url: `/Cerimoniarios/Listar`})
+      .then((resp) => setCerimoniarios(resp.data));
+  }, []);
+
+  function btnAdicionarPessoa() {
+    console.log('Adicionar Pessoa')
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
           <CelebracaoTitulo className="text-2xl">Pessoas</CelebracaoTitulo>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            {pessoasMock.length} membros da equipe do cerimonial
+            {cerimoniarios.length} membros da equipe do cerimonial
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4" />
-          Adicionar pessoa
-        </Button>
+        <Link href="/pessoas/form/novo">
+          <Button>
+            <Plus className="h-4 w-4" />
+            Adicionar pessoa
+          </Button>
+        </Link>
       </div>
 
       <div className="flex gap-3">
@@ -102,42 +122,42 @@ export default function PessoasPage() {
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
-        {pessoasMock.map((pessoa) => (
-          <Card key={pessoa.id}>
+        {cerimoniarios.map((cerimoniario) => (
+          <Card key={cerimoniario.id}>
             <div className="flex items-start gap-3">
               <Avatar className="h-11 w-11 shrink-0 ring-0 shadow-sm">
                 <AvatarFallback className="text-xs bg-[var(--brand)] text-white">
-                  {pessoa.iniciais}
+                  {extractInitialsFromName(cerimoniario.nome)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-medium text-[var(--text-primary)] truncate">
-                    {pessoa.nome}
+                    {cerimoniario.nome}
                   </h3>
-                  {pessoa.status === "AFASTADO" && (
+                  {/*pessoa.status === "AFASTADO" && (
                     <Badge variant="secondary" className="text-[10px]">
                       Afastado
                     </Badge>
-                  )}
+                  )*/}
                 </div>
                 <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                  {CategoriaLabel[pessoa.categoria]} · {pessoa.papel}
+                  {/*CategoriaLabel[pessoa.categoria]} · {pessoa.papel*/}
                 </p>
               </div>
             </div>
 
             <div className="mt-3 flex flex-wrap gap-1">
-              {pessoa.funcoes.map((f) => (
+              {/*pessoa.funcoes.map((f) => (
                 <Badge key={f} variant="secondary" className="text-[10px]">
                   {f}
                 </Badge>
-              ))}
+              ))*/}
             </div>
 
             <div className="mt-3 pt-3 border-t border-[var(--line)] flex items-center justify-between">
               <span className="text-xs text-[var(--text-tertiary)]">
-                {pessoa.celebracoesMes} celebrações este mês
+                {/*pessoa.celebracoesMes*/} celebrações este mês
               </span>
               <div className="flex gap-0.5">
                 <Button variant="ghost" size="icon-sm">
